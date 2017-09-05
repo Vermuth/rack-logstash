@@ -8,7 +8,7 @@ module Rack
     def initialize(app, url, opts = {})
       @app    = app
       @server = Rack::Logstash::Transport.new(url)
-      @tags   = opts.fetch(:tags, [])
+      @service   = opts.fetch(:service, "")
     end
 
     def call(env)
@@ -94,7 +94,7 @@ module Rack
       {
         '@version'            => 1,
         'type'                => 'rack-logstash',
-        'tags'                => @tags,
+        'service'             => @service,
         'clientip'            => req.ip,
         'timestamp'           => iso_time(env['rack.logstash.start_time']),
         '@timestamp'          => iso_time(env['rack.logstash.start_time']),
