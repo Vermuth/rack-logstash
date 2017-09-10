@@ -5,10 +5,11 @@ Spork.prefork do
   Bundler.setup(:default, :development)
   require 'rspec/core'
   require 'rspec/mocks'
+  require 'byebug'
 
   RSpec.configure do |config|
     config.fail_fast = true
-#   config.full_backtrace = true
+    config.full_backtrace = true
 
     config.expect_with :rspec do |c|
       c.syntax = :expect

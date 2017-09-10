@@ -22,28 +22,22 @@ describe Rack::Logstash do
   # This... is evil
   let(:log_entry)   { {} }
 
-  before :each do
-    expect(Rack::Logstash::Transport).
-      to receive(:new).
-      with('tcp://logstash:5151').
+  before do
+    expect(Rack::Logstash::Transport).to receive(:new).with('tcp://logstash:5151').
       and_return(mock_transport)
 
     expect(mock_transport).to receive(:send) do |s|
-      log_entry.replace(JSON.parse(s))
+      log_entry.replace(s)
     end
 
-    allow(Socket).
-      to receive(:gethostname).
-      and_return("server.example.com")
+    allow(Socket).to receive(:gethostname).and_return("server.example.com")
   end
 
   let(:response) { [200, [], ["OK"]] }
 
   context "a simple request" do
-    before :each do
-      expect(Time).
-        to receive(:now).
-        with(no_args).
+    before do
+      expect(Time).to receive(:now).with(no_args).
         and_return(
           Time.at(1234567890).utc,
           Time.at(1234567890.01).utc
@@ -77,7 +71,7 @@ describe Rack::Logstash do
     end
 
     it "logs the timestamp" do
-      expect(log_entry['timestamp']).to eq(Time.now.strftime("13/Feb/2009:23:31:30 +0000"))
+      expect(log_entry['timestamp']).to eq(Time.now.strftime("2009-02-13T23:31:30.000Z"))
     end
 
     it "logs the verb" do
@@ -153,13 +147,13 @@ describe Rack::Logstash do
     end
   end
 
-  context "with tags" do
+  context "with service" do
     let(:app) do
       url = logstash_url
       res = response
 
       Rack::Builder.new do
-        use Rack::Logstash, url, :tags => ["foo", "bar"]
+        use Rack::Logstash, url, service: 'simple_service'
 
         run proc { |env| res }
       end
@@ -173,8 +167,8 @@ describe Rack::Logstash do
       expect(log_entry).to_not be_empty
     end
 
-    it "sends the tags" do
-      expect(log_entry['tags']).to eq(["foo", "bar"])
+    it "sends the service" do
+      expect(log_entry['service']).to eq('simple_service')
     end
   end
 
@@ -212,7 +206,7 @@ describe Rack::Logstash do
     end
 
     it "sends an exception class" do
-      expect(log_entry['exception']['class']).to eq("RuntimeError")
+      expect(log_entry['exception']['class']).to eq(RuntimeError)
     end
 
     it "sends an exception message" do
