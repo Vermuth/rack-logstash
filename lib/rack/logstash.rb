@@ -70,11 +70,11 @@ module Rack
       req = Rack::Request.new(env)
 
       common_entry_fields(env).tap do |e|
-        e['message']   = "#{req.ip} " +
-                         "#{req.request_method} " +
-                         "#{req.path_info_and_query_string} " +
-                         "#{req.server_protocol} " +
-                         "=> #{ex.message} (#{ex.class})"
+        e['message'] = "#{req.ip} " +
+          "#{req.request_method} " +
+          "#{req.path_info_and_query_string} " +
+          "#{req.server_protocol} " +
+          "=> #{ex.message} (#{ex.class})"
 
         e['exception'] = {
           'class' => ex.class,
